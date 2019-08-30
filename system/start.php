@@ -16,7 +16,6 @@ require_once "Nquery.php";
 require_once "Nquery_edit.php";
 require_once "Nquery_filter.php";
 require_once "Nquery_filter2.php";
-require_once "3Dquery.php";
 
 // Autoloader.
 function __autoload($class) {

@@ -39,16 +39,6 @@ function NGetEditResults($input,$conn)
     //$Trip_Rank.=$record3[$i][0].",";
   }
   
-//get data for SCP=========================
-        $Eqr4 = "SELECT tripid,starthour,startday,avspeed,minspeed,maxspeed, EXTRACT(HOUR FROM endtime) as endHour,St_Length(trip::geography) as len FROM td WHERE tripid in" . $input ;
-        $query4 = $conn->prepare($Eqr4); 
-        $query4->execute();
-        $record4 = $query4->fetchAll();
-        $dataForSCP = "";
-        for ($i = 0;$i < sizeof($record3);$i++) {
-            $dataForSCP.= $record4[$i][0] . ":" . $record4[$i][1] . ":" . $record4[$i][2] .":" . $record4[$i][3] .":" . $record4[$i][4] .":" . $record4[$i][5] .":" . $record4[$i][6]  . ":" . $record4[$i][7]  . ",";
-        }  
-  
   $Final_Results = array(); 
   $Final_Results["WeekDays"]=$Week_Array;
   $Final_Results["DayHours"]=$Hour_Array;
@@ -56,7 +46,6 @@ function NGetEditResults($input,$conn)
   $Final_Results["Trip_Rank"]=substr(trim($Trip_Rank), 0, -1);;
   $Final_Results["St_Rank_count"]="0";
   $Final_Results["St_Rank_speed"]="0";
-  $Final_Results ["Data_For_SCP"] = substr(trim($dataForSCP), 0, -1);
 
   return json_encode($Final_Results);
  

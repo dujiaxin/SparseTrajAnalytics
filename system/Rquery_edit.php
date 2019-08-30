@@ -55,16 +55,14 @@ function RGetEditResults($input,$conn)
   }
   //streets rank by count===============================
   //$qr6="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC limit 10";
-  $qr6="select regionid,count(*) as total,avg(speed)as avspeed,MAX(speed) as maxspeed,MIN(speed) as minspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC";
+  $qr6="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC";
   $query6 = $conn->prepare($qr6);
   $query6->execute();
   $record6 = $query6->fetchAll();
   $CStreet_Rank="";
-  $Data_For_SCP = "";
   for($i=0;$i<sizeof($record6);$i++)
   {
-    $CStreet_Rank.=$record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].",";
-	$Data_For_SCP .= $record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].":".$record6[$i][3].":".$record6[$i][4].",";
+    $CStreet_Rank.=$record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].",";    
   }
   //streets rank by speed===============================
   //$qr7="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by avg(speed) DESC limit 10";
@@ -84,7 +82,6 @@ function RGetEditResults($input,$conn)
   $Final_Results["Trip_Rank"]=substr(trim($Trip_Rank), 0, -1);;
   $Final_Results["St_Rank_count"]=substr(trim($CStreet_Rank), 0, -1);
   $Final_Results["St_Rank_speed"]=substr(trim($SStreet_Rank), 0, -1);
-  $Final_Results["Data_For_SCP"] = substr(trim($Data_For_SCP), 0, -1);
 
   return json_encode($Final_Results);
  
