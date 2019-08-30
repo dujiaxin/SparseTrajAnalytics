@@ -1,0 +1,431 @@
+body,
+html {
+    height: 97.6vh;
+    padding-top: 1.9em;
+}
+#content {
+    width: 100%;
+    height: 100%;
+}
+#map {
+    float: left;
+    width: 70%;
+    height: 100%;
+    position: relative;
+    z-index: 0;
+}
+#rightside {
+    display: inline-block;
+    width: 29.79%;
+    height: 100%;
+    padding-top: 0.5%;
+}
+.fullscreen-icon {
+    background-image: url(icon-fullscreen.png);
+}
+#map:-webkit-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 99999;
+}
+#map:-ms-fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 99999;
+}
+#map:full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 99999;
+}
+#map:fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 99999;
+}
+.leaflet-pseudo-fullscreen {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0px !important;
+    left: 0px !important;
+    z-index: 99999;
+}
+.info {
+    padding: 6px 8px;
+    font: 12px/14px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+.legend {
+    text-align: left;
+    line-height: 16px;
+    color: #555;
+}
+.legend i {
+    width: 12px;
+    height: 12px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+#toolbar {
+    padding-top: 25px;
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    opacity: .6;
+    width: 13%;
+    height: 90%;
+    position: absolute;
+    left: -13%;
+    z-index: 99999;
+    transition: .5s left;
+    padding: 10px;
+    box-sizing: border-box;
+}
+#toolbar.open {
+    left: 0;
+    opacity: .95;
+    z-index: 99999;
+}
+#toolbar .MV {
+    height: 115px;
+    width: 28px;
+    background: #000;
+    box-shadow: 1px 0 2px rgba(0, 0, 0, .3);
+    position: absolute;
+    right: -25px;
+    top: 40%;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border: 1px solid #333;
+    cursor: pointer;
+    z-index: 99999;
+}
+.MV span {
+    color: orange;
+    font-weight: bold;
+    display: inline-block;
+    position: relative;
+    transform: rotate(90deg);
+    top: 45px;
+    left: -35px;
+}
+#MultiMap {
+    overflow-y: auto;
+    width: 100%;
+    height: 100%
+}
+#RControl {
+    font: 14px/16px Arial, Helvatica, sans-serif;
+    text-align: justify;
+    position: absolute;
+    width: 250px;
+    height: 400px;
+    top: 5px;
+    right: 11px;
+    z-index: 99999;
+    margin: 0px auto;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    pointer-events: auto;
+    line-height: 30px;
+    cursor: default;
+}
+#RControl h3 {
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+}
+.controlHeader {
+    background-repeat: repeat-x;
+    height: 26px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 26px;
+    text-align: center;
+}
+.controlHeader > .closeControl {
+    float: right;
+    background-image: url(images/minimize.png);
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    margin: 5px 5px 0px 0px;
+    cursor: pointer;
+}
+.RC {
+    background-color: #50636a;
+    padding: 2px;
+    margin: 1px 0px 0px 0px;
+    line-height: 27px;
+    text-align: left;
+    z-index: 99999;
+}
+.RC.highlighted {
+    background-color: #6CCBEE;
+}
+.RC > input {
+    font: 14px/16px Arial, Helvatica, sans-serif;
+    text-align: center;
+    color: black;
+    z-index: 99999;
+}
+.icon {
+    width: 25px;
+    height: 25px;
+    background-color: #50636a;
+    float: right;
+    margin: 2px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.iconActive {
+    background-color: #EEA657;
+}
+.iconDelete {
+    background-image: url(images/trash_icon.png);
+}
+.iconHide {
+    background-image: url(images/show_icon.png);
+}
+.iconShow {
+    background-image: url(images/hide_icon.png);
+}
+.iconEdit {
+    background-image: url(images/edit.png);
+}
+.iconRN {
+    background-image: url(images/road_network_icon.png);
+}
+#tabs-1 {
+    height: 100%;
+    width: 100%;
+    float: right;
+}
+#top1,
+#bottom1 {
+    position: relative;
+	width: 100%;
+	height: 27vh;
+}
+#top1 svg,
+#bottom1 svg {
+	position:absolute; 
+    width: 100%;
+	height: 27vh;
+}
+#exTab3 {
+	position: relative;
+    width: 30vw;
+	height: 40vh;
+    text-align: center;
+}
+.tick line {
+    display: none;
+}
+#exTab3 .nav-pills > li > a {
+    border-radius: 4em 4em 1em 1em;
+	font-size: 0.75vw;
+}
+#exTab3 .tab-content {
+    color: white;
+	font-size: 0.75vw;
+}
+#search {
+    position: fixed;
+    bottom: 22px;
+	left: 15%;
+    z-index: 99999;
+    width: 40%;
+	height: 5%;
+    color: #f0f0f0;
+    background-color: #333;
+    opacity: 0.9;
+    -webkit-opacity: 0.9;
+    -moz-opacity: 0.9;
+	border-radius: 15px;
+}
+#search form {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0.9em;
+    border-radius: 5px;
+    z-index: 99999;
+}
+#search-from-date {
+    border-radius: 5px;
+    text-align: center;
+    color: #000000;
+    font-size: 14px;
+    width: 19%;
+}
+#search-to-date {
+    border-radius: 5px;
+    text-align: center;
+    color: #000000;
+    font-size: 14px;
+    width: 19%;
+}
+#QueryMode {
+    border-radius: 5px;
+    text-align-last: center;
+    color: #000000;
+    font-size: 15px;
+    width: 17%;
+	height: 2.8vh;
+}
+#search form > div,
+#filters form > div {
+    display: inline;
+}
+.glyphicon-floppy-save {
+  color: crimson;
+  border: 2px solid crimson;
+  border-radius: 50%; /* circle */
+  padding: 1% 1%;
+}
+
+/*///////////////////new added/////////////*/
+
+
+#rectSPC {
+  fill: white;
+}
+#scatter {
+	position: relative;
+    width: 30%;
+	height: 40%;
+	margin : 0
+
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 1);
+  shape-rendering: crispEdges;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 1);
+  stroke-width: 2px;
+}
+
+.dot {
+  fill-opacity: 1;
+}
+
+
+.tooltipstyle{
+background: rgba(255,255,255, 0.8);
+    border: 1px solid rgba(0,0,0,0.5);
+    border-radius: 4px;
+}
+.margin_top_17
+{
+	margin-top: 17px;
+}
+
+.boldtext{
+padding : 5px;
+font-weight: bold;
+}
+
+.lasso path {
+  stroke: rgb(80,80,80);
+  stroke-width:2px;
+}
+
+.lasso .drawn {
+  fill-opacity:.05 ;
+}
+
+.lasso .loop_close {
+  fill:none;
+  stroke-dasharray: 4,4;
+}
+
+.lasso .origin {
+  fill:#3399FF;
+  fill-opacity:.5;
+}
+
+
+    body {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .dot {
+      stroke: #000;
+    }
+
+    .selection {
+      stroke          : gray;
+      stroke-width    : 1px;
+      stroke-dasharray: 4px;
+      stroke-opacity  : 0.5;
+      fill            : transparent;      
+    }
+
+    .selected{
+      fill: yellow !important;
+    }
+	
+	
+.background path {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  stroke: red;
+}
+
+.brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  cursor: move;
+}
+.yellowStroke{
+stroke : yellow
+}
+.mapboxgl-canvas{
+	position: absolute;
+    width: 800px !important;
+    height: 700px !important;
+}
+}
+
+#map2 { position:absolute; top:0; bottom:0; width:800px ; height:700px}
