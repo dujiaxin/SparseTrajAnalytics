@@ -24,14 +24,16 @@ function filter2($input, $conn) {
             $road_Array[$record1[$i][3]][$record1[$i][0]]["total_AVSpeed"] = $record1[$i][2];
         }
         //streets rank by count===============================
-        $SQL2 = "select roadid,count(*) as total,avg(speed)as avspeed from (Select  rid as roadid,speed,pdatetime as ptime from gps_points_rn where pdatetime BETWEEN '" . $input1[4] . "' AND '" . $input1[5] . "' And ST_Intersects (ST_GeomFromText('POLYGON((" . $input1[3] . "))',4326), point)) as x where EXTRACT(DOW FROM ptime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM ptime) in (" . $input1[1] . ") group by roadid order by 2 DESC";
+        $SQL2 = "select roadid,count(*) as total,avg(speed)as avspeed,MAX(speed) as maxspeed,MIN(speed)as minspeed from (Select  rid as roadid,speed,pdatetime as ptime from gps_points_rn where pdatetime BETWEEN '" . $input1[4] . "' AND '" . $input1[5] . "' And ST_Intersects (ST_GeomFromText('POLYGON((" . $input1[3] . "))',4326), point)) as x where EXTRACT(DOW FROM ptime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM ptime) in (" . $input1[1] . ") group by roadid order by 2 DESC";
         $query2 = $conn->prepare($SQL2);
         $query2->execute();
         $record2 = $query2->fetchAll();
         $CStreet_Rank = "";
+		$Data_For_SCP = "";
         for ($i = 0;$i < sizeof($record2);$i++) {
             $CStreet_Rank.= $record2[$i][0] . ":" . $record2[$i][1] . ":" . $record2[$i][2] . ",";
-        }
+        $Data_For_SCP .= $record2[$i][0] . ":" . $record2[$i][1] . ":" . $record2[$i][2] . ":" . $record2[$i][3] .":" . $record2[$i][4] . ",";
+		}
         //streets rank by speed===============================
         $SQL3 = "select roadid,count(*) as total,avg(speed)as avspeed from(Select  rid as roadid,speed,pdatetime as ptime from gps_points_rn where pdatetime BETWEEN '" . $input1[4] . "' AND '" . $input1[5] . "' And ST_Intersects (ST_GeomFromText('POLYGON((" . $input1[3] . "))',4326), point)) as x where EXTRACT(DOW FROM ptime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM ptime) in (" . $input1[1] . ")  group by roadid order by 3 DESC";
         $query3 = $conn->prepare($SQL3);
@@ -47,6 +49,7 @@ function filter2($input, $conn) {
         $Final_Results["St_Rank_count"] = substr(trim($CStreet_Rank), 0, -1);
         $Final_Results["St_Rank_speed"] = substr(trim($SStreet_Rank), 0, -1);
         $Final_Results["Trip_Rank"] = substr(trim($Trip_Rank), 0, -1);
+		$Final_Results["Data_For_SCP"] = substr(trim($Data_For_SCP), 0, -1);
     } else {
         // rank trips by trip length===============
         $SQL = "SELECT DISTINCT tripid,ST_AsText(trip) as trajectorypoints,St_Length(trip::geography) as len FROM tds " . "WHERE tripid in " . $input1[0] . " AND EXTRACT(DOW FROM starttime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM starttime) in (" . $input1[1] . ")  order by St_Length(trip::geography) DESC ";
@@ -72,16 +75,18 @@ function filter2($input, $conn) {
             $road_Array[$record1[$i][3]][$record1[$i][0]]["total_AVSpeed"] = $record1[$i][2];
         }
         //top ten streets by count===============================
-        $SQL2 = "select roadid,count(*) as total,avg(speed)as avspeed from(SELECT roadid,speed from(SELECT unnest(orids) as roadid,
+        $SQL2 = "select roadid,count(*) as total,avg(speed)as avspeed,MAX(Speed) as maxspeed,MIN(speed) as minspeed from(SELECT roadid,speed from(SELECT unnest(orids) as roadid,
   unnest(pointstime) as ptime,unnest(speeds)as speed FROM tds WHERE  tripid in " . $input1[0] . ")as x where EXTRACT(DOW FROM ptime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM ptime) 
   in (" . $input1[1] . "))as x1 group by roadid order by count(*) DESC";
         $query2 = $conn->prepare($SQL2);
         $query2->execute();
         $record2 = $query2->fetchAll();
         $CStreet_Rank = "";
+		$Data_For_SCP = "";
         for ($i = 0;$i < sizeof($record2);$i++) {
             $CStreet_Rank.= $record2[$i][0] . ":" . $record2[$i][1] . ":" . $record2[$i][2] . ",";
-        }
+			$Data_For_SCP .= $record2[$i][0] . ":" . $record2[$i][1] . ":" . $record2[$i][2] .":" . $record2[$i][3] .":" . $record2[$i][4] . ",";
+		}
         //top ten streets by speed===============================
         $SQL3 = "select roadid,count(*) as total,avg(speed)as avspeed from(SELECT roadid,speed from(SELECT unnest(orids) as roadid,unnest(pointstime) as ptime,
   unnest(speeds)as speed FROM tds WHERE  tripid in " . $input1[0] . ")as x where EXTRACT(DOW FROM ptime) in (" . $input1[2] . ") AND EXTRACT(HOUR FROM ptime) in (" . $input1[1] . "))as 
@@ -99,6 +104,7 @@ function filter2($input, $conn) {
         $Final_Results["St_Rank_count"] = substr(trim($CStreet_Rank), 0, -1);
         $Final_Results["St_Rank_speed"] = substr(trim($SStreet_Rank), 0, -1);
         $Final_Results["Trip_Rank"] = substr(trim($Trip_Rank), 0, -1);
+		 $Final_Results["Data_For_SCP"] = substr(trim($Data_For_SCP), 0, -1);
     }
     return json_encode($Final_Results);
     //return $qr2;

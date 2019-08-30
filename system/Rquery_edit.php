@@ -29,6 +29,26 @@ function RGetEditResults($input,$conn)
     $Hour_Array[$record2[$i][0]]["total"]= $record2[$i][2];
     $Hour_Array[$record2[$i][0]]["Trip_Ids"]= $record2[$i][1];    
   }
+  //group by Months=========================
+  $qrMonth = "SELECT startMonth,array_agg(tripid),count(*) FROM (Select  tripid,EXTRACT(Month FROM min(starttime)) as startMonth from tdr WHERE tripid in" . $input . " group by tripid ) as x group by startMonth order by startMonth";
+  $queryMonth = $conn->prepare($qrMonth);
+  $queryMonth->execute();
+  $recordMonth = $queryMonth->fetchAll();
+  $Months_Array = array();
+  for ($i = 0, $iMax = sizeof($recordMonth); $i < $iMax; $i++) {
+    $Months_Array[$recordMonth[$i][0]]["total"] = $recordMonth[$i][2];
+    $Months_Array[$recordMonth[$i][0]]["Trip_Ids"] = $recordMonth[$i][1];
+  }
+  //group by Years=========================
+  $qrYear = "SELECT startYear,array_agg(tripid),count(*) FROM (Select  tripid,EXTRACT(Year FROM min(starttime)) as startYear from tdr WHERE tripid in" . $input . " group by tripid ) as x group by startYear order by startYear";
+  $queryYear = $conn->prepare($qrYear);
+  $queryYear->execute();
+  $recordYear = $queryYear->fetchAll();
+  $Years_Array = array();
+  for ($i = 0, $iMax = sizeof($recordYear); $i < $iMax; $i++) {
+    $Years_Array[$recordYear[$i][0]]["total"] = $recordYear[$i][2];
+    $Years_Array[$recordYear[$i][0]]["Trip_Ids"] = $recordYear[$i][1];
+  }
   //group by region id=========================
   $qr5="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid";
   $query5 = $conn->prepare($qr5);
@@ -55,14 +75,16 @@ function RGetEditResults($input,$conn)
   }
   //streets rank by count===============================
   //$qr6="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC limit 10";
-  $qr6="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC";
+  $qr6="select regionid,count(*) as total,avg(speed)as avspeed,MAX(speed) as maxspeed,MIN(speed) as minspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by count(*) DESC";
   $query6 = $conn->prepare($qr6);
   $query6->execute();
   $record6 = $query6->fetchAll();
   $CStreet_Rank="";
+  $Data_For_SCP = "";
   for($i=0;$i<sizeof($record6);$i++)
   {
-    $CStreet_Rank.=$record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].",";    
+    $CStreet_Rank.=$record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].",";
+	$Data_For_SCP .= $record6[$i][0].":".$record6[$i][1].":".$record6[$i][2].":".$record6[$i][3].":".$record6[$i][4].",";
   }
   //streets rank by speed===============================
   //$qr7="select regionid,count(*) as total,avg(speed)as avspeed from(SELECT unnest(orids) as regionid,unnest(speeds)as speed FROM tdr WHERE tripid in".$input.") as f group by regionid order by avg(speed) DESC limit 10";
@@ -78,10 +100,13 @@ function RGetEditResults($input,$conn)
   $Final_Results = array(); 
   $Final_Results["WeekDays"]=$Week_Array;
   $Final_Results["DayHours"]=$Hour_Array;
+  $Final_Results["Months"] = $Months_Array;
+  $Final_Results["Years"] = $Years_Array;
   $Final_Results["region_Array"]=$region_Array;
   $Final_Results["Trip_Rank"]=substr(trim($Trip_Rank), 0, -1);;
   $Final_Results["St_Rank_count"]=substr(trim($CStreet_Rank), 0, -1);
   $Final_Results["St_Rank_speed"]=substr(trim($SStreet_Rank), 0, -1);
+  $Final_Results["Data_For_SCP"] = substr(trim($Data_For_SCP), 0, -1);
 
   return json_encode($Final_Results);
  

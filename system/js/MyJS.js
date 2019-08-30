@@ -88,7 +88,7 @@ for (var k = 0; k < 11; k++) {
 }
 
 // add an OpenStreetMap tile layer
-var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+var mbAttr = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
     '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
     'Imagery © <a href="http://mapbox.com">Mapbox</a>',
     mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGxhbmVtYWQiLCJhIjoiemdYSVVLRSJ9.g3lbg_eN0kztmsfIPxa9MQ';
@@ -426,7 +426,7 @@ legend.onAdd = function(map) {
 
         labels.push(
             '<i style="background:' + getColor(from) + '"></i> ' + lbl[i]);
-        //from + (to ? '&ndash;' + to : '+'));
+        //from + (to ? '–' + to : '+'));
     }
     div.innerHTML = labels.join('<br>');
     return div;
@@ -583,10 +583,15 @@ function clearMap() {
     if (heatLayer != -1) {
         map.removeLayer(heatLayer);
     }
+    clearLassoSelectedClickLayel();
+    clearLassoSelectedStreeLayel();
 }
 //*****************************************************************************************************************************************
 // Drawing Shapes (polyline, polygon, circle, rectangle, marker) Event: Select from draw box and start drawing on map.
 //*****************************************************************************************************************************************
+var stcor = "";
+var type = "";
+var color = "";
 map.on('draw:created', function(e) {
 
     //var T1 = kendo.toString($("#datetimepicker1").data("kendoDateTimePicker").value(), "yyyy/MM/dd HH:mm:ss").replace(/\//g, '-');
@@ -608,7 +613,7 @@ map.on('draw:created', function(e) {
     var T1 = document.getElementById("search-from-date").value + ":00";
     var T2 = document.getElementById("search-to-date").value + ":00";
 
-    var type = e.layerType;
+    type = e.layerType;
     var layer = e.layer;
     layer.type = type;
     layer.TQ = SMM;
@@ -631,7 +636,7 @@ map.on('draw:created', function(e) {
             featureGroup.clearLayers();
             drawnItems.clearLayers();
         }
-        var color = vis.QueryManager.nextQueryColor;
+        color = vis.QueryManager.nextQueryColor;
         newQuery = vis.QueryManager.CreateQuery(layer, color);
         //layer.bindPopup('Query ' + newQuery.QueryId);
         //If your selection is a circle
@@ -645,7 +650,7 @@ map.on('draw:created', function(e) {
             var p = f[0].toGeoJSON()
             featureGroup.addLayer(f[0]);
             // points of the border
-            var stcor = p.geometry.coordinates[0][0][0].toString() + " " + p.geometry.coordinates[0][0][1].toString();
+            stcor = p.geometry.coordinates[0][0][0].toString() + " " + p.geometry.coordinates[0][0][1].toString();
             for (var k = 1; k < p.geometry.coordinates[0].length; k++) {
                 stcor = stcor + "," + p.geometry.coordinates[0][k][0].toString() + " " + p.geometry.coordinates[0][k][1].toString();
             }
@@ -662,7 +667,7 @@ map.on('draw:created', function(e) {
                     if (results) {
                         var obj = [];
                         obj = JSON.parse(results);
-                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                     } else {
                         console.log("No Results");
                     }
@@ -678,7 +683,7 @@ map.on('draw:created', function(e) {
                         var obj = [];
                         obj = JSON.parse(results);
                         //console.log(obj);
-                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                     } else {
                         console.log("No Results");
                     }
@@ -694,7 +699,7 @@ map.on('draw:created', function(e) {
                         var obj = [];
                         obj = JSON.parse(results);
                         //console.log(obj);
-                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                        StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"],obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                     } else {
                         console.log("No Results");
                     }
@@ -709,7 +714,7 @@ map.on('draw:created', function(e) {
                 coor = layer.getLatLngs();
                 QcoorLat = coor[0][0].lat;
                 QcoorLng = coor[0][0].lng;
-                var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                 for (var k = 1; k < coor[0].length; k++) {
                     stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                 }
@@ -727,7 +732,8 @@ map.on('draw:created', function(e) {
                         if (results) {
                             var obj = [];
                             obj = JSON.parse(results);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            console.log(obj);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -743,7 +749,7 @@ map.on('draw:created', function(e) {
                             var obj = [];
                             obj = JSON.parse(results);
                             //console.log(obj);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -759,7 +765,7 @@ map.on('draw:created', function(e) {
                             var obj = [];
                             obj = JSON.parse(results);
                             //console.log(obj);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -773,7 +779,7 @@ map.on('draw:created', function(e) {
                 featureGroup.addLayer(layer);
                 var coor = [];
                 coor = layer.getLatLngs();
-                var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                 for (var k = 1; k < coor[0].length; k++) {
                     stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                 }
@@ -790,7 +796,7 @@ map.on('draw:created', function(e) {
                         if (results) {
                             var obj = [];
                             obj = JSON.parse(results);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["years"], obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -806,7 +812,7 @@ map.on('draw:created', function(e) {
                             var obj = [];
                             obj = JSON.parse(results);
                             //console.log(obj);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"],obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -822,7 +828,7 @@ map.on('draw:created', function(e) {
                             var obj = [];
                             obj = JSON.parse(results);
                             //console.log(obj);
-                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                            StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"],obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                         } else {
                             console.log("No Results");
                         }
@@ -833,7 +839,7 @@ map.on('draw:created', function(e) {
     if (edit == 1) {
         var Qu = vis.QueryManager.GetQueryByQueryId(editQId);
         Qu.LayerGroups.push(layer);
-        var color = Qu.Color;
+        color = Qu.Color;
         //If your selection is a circle
         if (type === 'circle') {
             //Prepare circle border for query
@@ -845,7 +851,7 @@ map.on('draw:created', function(e) {
             var p = f[0].toGeoJSON()
 
             // points of the border
-            var stcor = p.geometry.coordinates[0][0][0].toString() + " " + p.geometry.coordinates[0][0][1].toString();
+            stcor = p.geometry.coordinates[0][0][0].toString() + " " + p.geometry.coordinates[0][0][1].toString();
             for (var k = 1; k < p.geometry.coordinates[0].length; k++) {
                 stcor = stcor + "," + p.geometry.coordinates[0][k][0].toString() + " " + p.geometry.coordinates[0][k][1].toString();
             }
@@ -874,7 +880,7 @@ map.on('draw:created', function(e) {
                                 obj1 = JSON.parse(results);
                                 //console.log(obj1)
                                 //console.log(FinalResults)
-                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                 ComplexQueryList = []
                                 edit = 0;
                                 var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -913,7 +919,7 @@ map.on('draw:created', function(e) {
                                 obj1 = JSON.parse(results);
                                 //console.log(obj1)
                                 //console.log(FinalResults)
-                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                 ComplexQueryList = []
                                 edit = 0;
                                 var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -952,7 +958,7 @@ map.on('draw:created', function(e) {
                                 obj1 = JSON.parse(results);
                                 //console.log(obj1)
                                 //console.log(FinalResults)
-                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                 ComplexQueryList = []
                                 edit = 0;
                                 var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -977,7 +983,7 @@ map.on('draw:created', function(e) {
                 //Prepare rectangle border for query
                 var coor = [];
                 coor = layer.getLatLngs();
-                var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                 for (var k = 1; k < coor[0].length; k++) {
                     stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                 }
@@ -1004,7 +1010,7 @@ map.on('draw:created', function(e) {
                                 if (results) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color, obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1040,7 +1046,7 @@ map.on('draw:created', function(e) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
                                     //console.log(obj1);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"],obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1076,7 +1082,7 @@ map.on('draw:created', function(e) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
                                     //console.log(obj1);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color, obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1099,7 +1105,7 @@ map.on('draw:created', function(e) {
                 //Prepare polygon border for query
                 var coor = [];
                 coor = layer.getLatLngs();
-                var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                 for (var k = 1; k < coor[0].length; k++) {
                     stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                 }
@@ -1126,7 +1132,7 @@ map.on('draw:created', function(e) {
                                 if (results) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color, obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1162,7 +1168,7 @@ map.on('draw:created', function(e) {
                                 if (results) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1198,7 +1204,7 @@ map.on('draw:created', function(e) {
                                 if (results) {
                                     var obj1 = [];
                                     obj1 = JSON.parse(results);
-                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color, obj1["Data_For_SCP"]);
                                     ComplexQueryList = []
                                     edit = 0;
                                     var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1248,7 +1254,7 @@ $('input[type=file]').change(function(e) {
                     }
 
                     if (j == 0) {
-                        var color = vis.QueryManager.nextQueryColor;
+                        color = vis.QueryManager.nextQueryColor;
                         var polygon = L.polygon([poly], {
                             color: color,
                             fillColor: color,
@@ -1285,7 +1291,7 @@ $('input[type=file]').change(function(e) {
                         newQuery = vis.QueryManager.CreateQuery(layer, color)
                         var coor = [];
                         coor = layer.getLatLngs();
-                        var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                        stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                         for (var k = 1; k < coor[0].length; k++) {
                             stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                         }
@@ -1304,7 +1310,7 @@ $('input[type=file]').change(function(e) {
                                 if (results) {
                                     var obj = [];
                                     obj = JSON.parse(results);
-                                    StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                                    StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"],obj["Months"], obj["Years"], obj["road_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color, obj["Data_For_SCP"]);
                                 } else {
                                     console.log("No Results");
                                 }
@@ -1322,7 +1328,7 @@ $('input[type=file]').change(function(e) {
                                     var obj = [];
                                     obj = JSON.parse(results);
                                     //console.log(obj);
-                                    StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                 } else {
                                     console.log("No Results");
                                 }
@@ -1340,7 +1346,7 @@ $('input[type=file]').change(function(e) {
                                     var obj = [];
                                     obj = JSON.parse(results);
                                     //console.log(obj);
-                                    StoreInfo(stcor, obj["Draw"], obj["WeekDays"], obj["DayHours"], obj["Months"], obj["Years"], obj["region_Array"], obj["Trip_Rank"], obj["St_Rank_count"], obj["St_Rank_speed"], type, edit, newQuery.QueryId, color);
+                                    StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"],obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color,obj1["Data_For_SCP"]);
                                 } else {
                                     console.log("No Results");
                                 }
@@ -1394,10 +1400,10 @@ $('input[type=file]').change(function(e) {
                         else
                             ComplexQueryList = Qu.parameters;
                         Qu.LayerGroups.push(layer);
-                        var color = Qu.Color;
+                        color = Qu.Color;
                         var coor = [];
                         coor = layer.getLatLngs();
-                        var stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
+                        stcor = coor[0][0].lng.toString() + " " + coor[0][0].lat.toString();
                         for (var k = 1; k < coor[0].length; k++) {
                             stcor = stcor + "," + coor[0][k].lng.toString() + " " + coor[0][k].lat.toString();
                         }
@@ -1429,7 +1435,7 @@ $('input[type=file]').change(function(e) {
                                         if (results) {
                                             var obj1 = [];
                                             obj1 = JSON.parse(results);
-                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj1["Months"], obj1["Years"], obj1["road_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
                                             ComplexQueryList = []
                                             edit = 0;
                                             var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1469,7 +1475,7 @@ $('input[type=file]').change(function(e) {
                                         if (results) {
                                             var obj1 = [];
                                             obj1 = JSON.parse(results);
-                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj1["Months"], obj1["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
                                             ComplexQueryList = []
                                             edit = 0;
                                             var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1509,7 +1515,7 @@ $('input[type=file]').change(function(e) {
                                         if (results) {
                                             var obj1 = [];
                                             obj1 = JSON.parse(results);
-                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj["Months"], obj["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color);
+                                            StoreInfo(ComplexQueryList, FinalResults, obj1["WeekDays"], obj1["DayHours"], obj1["Months"], obj1["Years"], obj1["region_Array"], obj1["Trip_Rank"], obj1["St_Rank_count"], obj1["St_Rank_speed"], "C", edit, editQId, color, obj["Data_For_SCP"]);
                                             ComplexQueryList = []
                                             edit = 0;
                                             var Qu = vis.QueryManager.GetQueryByQueryId(editQId)
@@ -1630,7 +1636,6 @@ function FilterComplexQuery() {
     }
 
 
-
     return FinalResults;
 }
 //*****************************************************************************************************************************************
@@ -1651,7 +1656,7 @@ jQuery(document).ready(function() {
 //*****************************************************************************************************************************************
 // Function to store Query Info
 //*****************************************************************************************************************************************
-function StoreInfo(parameters, results, WeekDays, DayHours, Months, Years,road_Array, Trip_Rank, St_Rank_count, St_Rank_speed, type, Complex, Id, Qcolor) {
+function StoreInfo(parameters, results, WeekDays, DayHours, Months,Years,road_Array, Trip_Rank, St_Rank_count, St_Rank_speed, type, Complex, Id, Qcolor, data_For_SCP) {
     var Qu = vis.QueryManager.GetQueryByQueryId(Id);
     if (Qu != null) {
         Qu.parameters = parameters;
@@ -1667,6 +1672,7 @@ function StoreInfo(parameters, results, WeekDays, DayHours, Months, Years,road_A
         Qu.Qtype = type;
         Qu.Complex = Complex;
         Qu.color = Qcolor;
+        Qu.data_For_SCP = data_For_SCP;
     }
     ActiveQID = Object.create(Qu);
     TempQO = Object.create(Qu);
@@ -1690,7 +1696,9 @@ function StoreInfo(parameters, results, WeekDays, DayHours, Months, Years,road_A
             DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
         }
         tabledata(Qu.St_Rank_count, Qu.St_Rank_speed, Qu.Trip_Rank);
-        DrawChart_DJX();
+        DrawChart();
+        getDataForSCP(Qu.data_For_SCP);
+        drawSCP();
     } else if (MyTB === "tdr") {
         if (AvtiveVis == 1) {
             RDrawStreet(ActiveQID.road_Array);
@@ -1705,7 +1713,10 @@ function StoreInfo(parameters, results, WeekDays, DayHours, Months, Years,road_A
         }
         tabledata(Qu.St_Rank_count, Qu.St_Rank_speed, Qu.Trip_Rank);
         DrawChart();
+        getDataForSCP(Qu.data_For_SCP);
+        drawSCP();
     } else if (MyTB === "td") {
+
         if (AvtiveVis == 3) {
             DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
         } else if (AvtiveVis == 4) {
@@ -1714,7 +1725,9 @@ function StoreInfo(parameters, results, WeekDays, DayHours, Months, Years,road_A
             DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
         }
         tabledata(Qu.St_Rank_count, Qu.St_Rank_speed, Qu.Trip_Rank);
-        DrawChart_DJX();
+        DrawChart();
+        getDataForSCP(Qu.data_For_SCP);
+        drawSCP();
     }
 
 }
@@ -2241,6 +2254,7 @@ function DrawDrop(objtraj, ID, color1, Robj) {
         Pickregns.addTo(map);
     }
     var heatMap = [];
+    var calculated_heatmap_max = 1;
     for (var j in objtraj) {
         objtraj[j]["trajectorypoints"] = objtraj[j]["trajectorypoints"].replace("LINESTRING(", "")
         objtraj[j]["trajectorypoints"] = objtraj[j]["trajectorypoints"].replace(")", "")
@@ -2248,10 +2262,11 @@ function DrawDrop(objtraj, ID, color1, Robj) {
         T = Traj[Traj.length - 1].split(' ');
         heatMap.push([T[1], T[0], 10]);
     }
-
+    calculated_heatmap_max = heatMap.length/5000
     heatLayer = L.heatLayer(heatMap, {
         radius: 10,
         blur: 15,
+        max: calculated_heatmap_max,
     });
     heatLayer.addTo(map);
 }
@@ -2609,6 +2624,8 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                 DrawChart();
                 ActiveQID = Object.create(TempQO);
                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                getDataForSCP(ActiveQID.data_For_SCP);
+                drawSCP();
                 clearMap();
                 if (MyTB === "tds") {
                     if (AvtiveVis == 1) {
@@ -2667,18 +2684,17 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                 //console.log(e)
                 time = e.x;
                 idx = e.series;
-				
-				
-				
-				if(Timelabels1.indexOf(time)==-1){	
-					d3.select("#bottom1 svg").selectAll('rect').style('opacity', .2);
-					d3.select(this).style('opacity', 1);
-				}
-				if(Timelabels1.indexOf(time)!=-1){	
-					d3.select("#top1 svg").selectAll('rect').style('opacity', .2);
-					d3.select(this).style('opacity', 1);
-				}
-				
+
+
+                if (Timelabels1.indexOf(time) == -1) {
+                    d3.select("#bottom1 svg").selectAll('rect').style('opacity', .2);
+                    d3.select(this).style('opacity', 1);
+                }
+                if (Timelabels1.indexOf(time) != -1) {
+                    d3.select("#top1 svg").selectAll('rect').style('opacity', .2);
+                    d3.select(this).style('opacity', 1);
+                }
+
                 var temp;
                 if (Timelabels1.indexOf(time) > -1)
                     temp = ChDataB[idx]["key"].split(":")
@@ -2705,6 +2721,7 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                         para += "!" + Qu.parameters[0].QueryPara;
                     //post query to get the interaction results
                     if (MyTB === "tds") {
+                        console.log(para);
                         $.post("/TrajVis/system/query_filter.php", {
                             para: para,
                             DB: MyDB
@@ -2717,6 +2734,7 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 //Qu.extra_query.push(obj1)
                                 //console.log(obj1);
                                 if (Timelabels1.indexOf(time) <= -1)
+
                                     DrawHourChart(obj1["DayHours"], qid, Qu.Color, time);
 
                                 ActiveQID.Results = obj1["Draw"];
@@ -2725,8 +2743,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 1) {
                                     DrawStreet(ActiveQID.road_Array);
@@ -2767,8 +2788,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 1) {
                                     RDrawStreet(ActiveQID.road_Array);
@@ -2787,6 +2811,8 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                             }
                         });
                     } else if (MyTB === "td") {
+                        console.log("inside");
+                        console.log(para);
                         $.post("/TrajVis/system/Nquery_filter.php", {
                             para: para,
                             DB: MyDB
@@ -2807,8 +2833,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 3) {
                                     DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
@@ -2844,6 +2873,7 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                     //console.log(para1)
                     //post query to get the interaction results
                     if (MyTB === "tds") {
+                        console.log(para);
                         $.post("/TrajVis/system/query_filter2.php", {
                             para1: para1,
                             DB: MyDB
@@ -2857,8 +2887,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 1) {
                                     DrawStreet(ActiveQID.road_Array);
@@ -2890,8 +2923,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 1) {
                                     RDrawStreet(ActiveQID.road_Array);
@@ -2910,12 +2946,15 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                             }
                         });
                     } else if (MyTB === "td") {
+                        console.log("oytside");
+                        console.log(para1);
                         $.post("/TrajVis/system/Nquery_filter2.php", {
                             para1: para1,
                             DB: MyDB
                         }, function(results) {
                             // the output of the response is now handled via a variable call 'results'
                             if (results) {
+                                console.log(results);
                                 var obj1 = [];
                                 obj1 = JSON.parse(results);
                                 ActiveQID.Results = obj1["Draw"];
@@ -2923,8 +2962,11 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
                                 ActiveQID.Trip_Rank = obj1["Trip_Rank"];
                                 ActiveQID.St_Rank_count = obj1["St_Rank_count"];
                                 ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                                ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
 
                                 tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                                getDataForSCP(ActiveQID.data_For_SCP);
+                                drawSCP();
                                 clearMap();
                                 if (AvtiveVis == 3) {
                                     DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
@@ -2947,86 +2989,9 @@ function DrawGroupedBarChart(xtitle, Ytitle, ChDataB, svg3) {
 
 //*****************************************************************************************************************************************
 //// Draw Chart
-//*****************************************************************************************************************************************
-function DrawChart() {
-    $("#bottom1 svg").empty();
-    $("#top1 svg").empty();
-    var Ytitle = "Count"
-    var xtitle1 = "DayHours"
-    var xtitle2 = "WeekDays"
-    var svg1 = '#top1 svg'
-    var svg2 = '#bottom1 svg'
-    var BarChartData1 = []
-    var BarChartData2 = []
-
-    for (var j0 = 0; j0 < VisSelected.length; j0++) {
-        j = VisSelected[j0]
-        var qu = vis.QueryManager.GetQueryByQueryId(j);
-        var temp1 = qu.DayHours
-        var temp2 = qu.WeekDays
-
-        //var Timelabels = ["12am","1am","2am","3am","4am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
-        var Timelabels1 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
-        var Timelabels2 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-
-        var DdataB1 = []
-        var DdataB2 = []
-
-        for (var i = 0; i < 24; i++) {
-            if (i in temp1) {
-                DdataB1.push({
-                    x: Timelabels1[i],
-                    y: parseInt(temp1[i]['total']),
-
-                });
-            } else {
-                DdataB1.push({
-                    x: Timelabels1[i],
-                    y: 0,
-
-                });
-            }
-        }
-        for (var i = 0; i < 7; i++) {
-            if (i in temp2) {
-                DdataB2.push({
-                    x: Timelabels2[i],
-                    y: parseInt(temp2[i]['total']),
-
-                });
-            } else {
-                DdataB2.push({
-                    x: Timelabels2[i],
-                    y: 0,
-
-                });
-            }
-        }
-        var FDataB1 = {
-            values: DdataB1,
-            key: "Query:" + qu.QueryId,
-            color: qu.Color
-        }
-        BarChartData1.push(FDataB1)
-        var FDataB2 = {
-            values: DdataB2,
-            key: "Query:" + qu.QueryId,
-            color: qu.Color
-        }
-
-        BarChartData2.push(FDataB2)
-    }
-    ChDataB_Main = BarChartData2
-    DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1)
-    DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2)
-}
-
-
-//*****************************************************************************************************************************************
-//// Draw Chart
 //// edited by DJX, add Month and Year Chart
 //*****************************************************************************************************************************************
-function DrawChart_DJX() {
+function DrawChart() {
     $("#bottom1 svg").empty();
     $("#top1 svg").empty();
     $("#Months_reportView svg").empty();
@@ -3114,7 +3079,7 @@ function DrawChart_DJX() {
                 x: k,
                 y: parseInt(temp4[k]['total']),
             });
-        } 
+        }
 
 
         var FDataB1 = {
@@ -3129,7 +3094,7 @@ function DrawChart_DJX() {
             color: qu.Color
         }
         BarChartData2.push(FDataB2)
-    
+
         var FDataB3 = {
             values: DdataB3,
             key: "Query:" + qu.QueryId,
@@ -3142,13 +3107,13 @@ function DrawChart_DJX() {
             color: qu.Color
         }
         BarChartData4.push(FDataB4)
-    
-    ChDataB_Main = BarChartData2
-    DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1);
-    DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2);
-    DrawGroupedBarChart(xtitle3, Ytitle, BarChartData3, svg3);
-    DrawGroupedBarChart(xtitle4, Ytitle, BarChartData4, svg4);
-}}
+
+        ChDataB_Main = BarChartData2
+        DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1);
+        DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2);
+        DrawGroupedBarChart(xtitle3, Ytitle, BarChartData3, svg3);
+        DrawGroupedBarChart(xtitle4, Ytitle, BarChartData4, svg4);
+    }}
 
 function DrawChart1() {
     $("#top1 svg").empty();
@@ -3157,7 +3122,7 @@ function DrawChart1() {
     var svg1 = '#top1 svg'
     var BarChartData1 = []
     DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1)
-};
+}
 //*****************************************************************************************************************************************
 //// Draw Hour Chart
 //*****************************************************************************************************************************************
@@ -3200,19 +3165,21 @@ function DrawHourChart(temp1, qid, Color, time) {
 //// Add Data List View
 //*****************************************************************************************************************************************
 function tabledata(objrank, objrank1, objrank2) {
-    $("#singleSort").data('kendoGrid').dataSource.data([]);
-    var Data = objrank.split(',');
-    var grid = $("#singleSort").data("kendoGrid");
-    var datasource = grid.dataSource;
-    for (var i = 0; i < Data.length; i++) {
-        var Data1 = Data[i].split(':');
-        datasource.insert({
-            Street: Data1[0],
-            Flow: parseInt(Data1[1]),
-            Speed: parseInt(Data1[2]),
-        });
-    }
 
+    $("#singleSort").data('kendoGrid').dataSource.data([]);
+    if (objrank != null) {
+        var Data = objrank.split(',');
+        var grid = $("#singleSort").data("kendoGrid");
+        var datasource = grid.dataSource;
+        for (var i = 0; i < Data.length; i++) {
+            var Data1 = Data[i].split(':');
+            datasource.insert({
+                Street: Data1[0],
+                Flow: parseInt(Data1[1]),
+                Speed: parseInt(Data1[2]),
+            });
+        }
+    }
     $("#singleSort1").data('kendoGrid').dataSource.data([]);
     var Data1 = objrank1.split(',');
     var grid1 = $("#singleSort1").data("kendoGrid");
@@ -3757,30 +3724,1281 @@ $('#span3').click(function() {
         }
     }
 });
+
+//////////
+var colorBy;
+var dataForSCP = []
+var colorForSCP;
+////prepare data for scatter plot
+
+function getDataForSCP(tripdata) {
+    if (tripdata != null) {
+        var Data = tripdata.split(',');
+        dataForSCP = [];
+        if (MyTB == "td") {
+            document.getElementById("h2dataInnfo").innerHTML = "Trip Atribute";
+            document.getElementById("h2dataInnfo").style.marginLeft = (window.innerWidth / 7);
+            for (var i = 0; i < Data.length; i++) {
+                var Data1 = Data[i].split(':');
+                //  if(parseInt(Data1[1]) >0 && parseInt(Data1[2])>0 &&  parseInt(Data1[3]) >0 && parseInt(Data1[4]))
+                //{
+                var newLine = {};
+                newLine["Id"] = Data1[0];
+                newLine["StartHour"] = parseInt(Data1[1]);
+                newLine["StartDay"] = parseInt(Data1[2]);
+                newLine["AvgSpeed"] = parseInt(Data1[3]);
+                newLine["MinSpeed"] = parseInt(Data1[4]);
+                newLine["MaxSpeed"] = parseInt(Data1[5]);
+                newLine["EndHour"] = parseInt(Data1[6]);
+                newLine["Length_km"] = parseInt(parseInt(Data1[7]) / 1000);
+                dataForSCP.push(newLine);
+                //}
+            }
+        } else {
+            document.getElementById("h2dataInnfo").innerHTML = "Street Atribute";
+            for (var i = 0; i < Data.length; i++) {
+                var Data1 = Data[i].split(':');
+                if (parseInt(Data1[1]) > 0 && parseInt(Data1[2]) > 0 && parseInt(Data1[3]) > 0 && parseInt(Data1[4])) {
+                    var newLine = {};
+                    newLine["Id"] = Data1[0];
+                    newLine["Flow"] = parseInt(Data1[1]);
+                    newLine["AvgSpeed"] = parseInt(Data1[2]);
+                    newLine["MaxSpeed"] = parseInt(Data1[3]);
+                    newLine["MinSpeed"] = parseInt(Data1[4]);
+                    dataForSCP.push(newLine);
+                }
+            }
+        }
+    }
+}
+var lassoselectedList = "";
+
+/// draw scatter plot
+
+function drawSCP() {
+    d3.select("#scatter").select("svg").remove();
+	clearLassoSelectedStreeLayel();
+	clearLassoSelectedClickLayel();
+	resetallverialFor3d();
+    var margin = {
+            top: 5,
+            right: 50,
+            bottom: 60,
+            left: 50
+        },
+        outerWidth = (window.innerWidth / 3.5);
+    outerHeight = (window.innerHeight / 2.5) - 100;
+    width = outerWidth - margin.left - margin.right,
+        height = outerHeight - margin.top - margin.bottom;
+    var x = d3.scale.linear()
+        .range([0, width]);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+    var XLine = document.getElementById('XLine').value
+    var YLine = document.getElementById('YLine').value
+    colorBy = document.getElementById('colorid').value
+
+    var xmax = d3.max(dataForSCP, function(d) {
+        return d[XLine];
+    });
+    var xmin = d3.min(dataForSCP, function(d) {
+        return d[XLine];
+    });
+
+    var ymax = d3.max(dataForSCP, function(d) {
+        return d[YLine];
+    });
+    var ymin = d3.min(dataForSCP, function(d) {
+        return d[YLine];
+    });
+    x.domain([xmin - 10, xmax + 10]).nice();
+    y.domain([ymin - 10, ymax + 10]).nice();
+
+
+    var xAxis = d3.svg.axis()
+        .scale(x).tickFormat(function(d) {
+            if ((d / 1000) >= 1) {
+                d = d / 1000 + "K";
+            }
+            return d;
+        })
+        .orient("bottom");
+
+
+    var yAxis = d3.svg.axis()
+        .scale(y).tickFormat(function(d) {
+            if ((d / 1000) >= 1) {
+                d = d / 1000 + "K";
+            }
+            return d;
+        })
+        .orient("left");
+
+    d3.select("#scatter").select("svg").remove();
+
+    var svg = d3.select("#scatter").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g").attr("class", "g_main")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    // Lasso functions to execute while lassoing
+    var lasso_start = function() {
+        lasso.items()
+            .attr("r", 6).style('stroke-width', 1); // reset size
+        clearLassoSelectedStreeLayel();
+    };
+
+    var lasso_end = function() {
+
+        var selecteddata = lasso.items().filter(function(d) {
+                return d.selected === true
+            })
+            .style('stroke-width', 4);
+
+        var selectedSCPData = selecteddata[0].map(a => {
+            return JSON.parse(a.attributes[0].nodeValue)
+        });
+        if (selectedSCPData.length > 0) {
+
+            HighlightStreetForLassoSelect(selectedSCPData);
+        }
+    };
+
+    // Create the area where the lasso event can be triggered
+    var lasso_area = svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("opacity", 0);
+
+    // Define the lasso
+    var lasso = d3.lasso()
+        .closePathDistance(75) // max distance for the lasso loop to be closed
+        .closePathSelect(true) // can items be selected by closing the path?
+        .hoverSelect(true) // can items by selected by hovering over them?
+        .area(lasso_area) // area where the lasso can be started
+        .on("start", lasso_start) // lasso start function
+        .on("end", lasso_end); // lasso end function
+
+
+    // Init the lasso on the svg:g that contains the dots
+    svg.call(lasso);
+
+    var tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip tooltipstyle")
+        .style("opacity", 0.0);
+
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("x", width + 2)
+        .attr("y", 30)
+        .style("text-anchor", "end")
+        .style("font-Weight", "bold")
+        .style("font-size", 12)
+        .text(XLine);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -40)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .style("font-Weight", "bold")
+        .style("font-size", 12)
+        .text(YLine);
+
+
+    svg.selectAll(".dot")
+        .data(dataForSCP)
+        .enter().append("circle")
+        .attr("id", function(d) {
+            return +d.Id
+        })
+        .attr("class", "dot").style("cursor", "pointer")
+        .attr("r", 6)
+        .attr("cx", function(d) {
+            return x(d[XLine]);
+        })
+        .attr("cy", function(d) {
+            return y(d[YLine]);
+        })
+        .style("fill", function(d) {
+            return getColorSCP(d[colorBy]);
+        })
+        .on("mouseover", function(d, i) {
+            d3.select(this)
+                .attr("r", 9);
+            if (MyTB === "td") {
+                HighlightTraj(d.Id)
+            } else {
+                HighlightStreet(d.Id);
+            }
+            var str = "";
+            str += "<div><b>ID: " + d.Id + "</b></div>";
+            str += "<div>" + XLine + ": " + d[XLine] + "</div>";
+            str += "<div>" + YLine + ": " + d[YLine] + "</div>";
+            tooltip.html(str)
+                .style("width", 100 + "px")
+                .style("height", "auto")
+                .style("left", (d3.event.pageX - 50) + "px")
+                .style("top", (d3.event.pageY - 65) + "px")
+                .style("opacity", 1.0)
+                .style("background", "white");
+        })
+        .on("mouseout", function(d) {
+
+            if (!isdblclick) {
+                d3.select(this)
+                    .attr("r", 6);
+			}
+                var ZOM = map.getZoom();
+                if (Street_Layer != -1) {
+                    map.removeLayer(Street_Layer);
+                }
+                if (Region_Layer != -1) {
+                    map.removeLayer(Region_Layer);
+                }
+                if (Poly_Layer != -1) {
+                    map.removeLayer(Poly_Layer);
+                }
+                map.setView([QcoorLat, QcoorLng], zoom, {
+                    animation: true
+                });
+                tooltip.style("width", 0)
+                    .style("height", 0)
+                    .style("opacity", 0.0);
+            
+        }).on("click", function(d) {
+
+            if (clickStreetList.indexOf(d.Id) == -1) {
+                d3.select(this).style('fill', "#F0FC4C");
+                HighlightStreetForSCPClick(d.Id);
+            } else {
+                d3.select(this).style("fill", function(d) {
+                    return getColorSCP(d[colorBy]);
+                });
+                var streetIndex = clickStreetList.indexOf(d.Id);
+                map.removeLayer(clickStreetLayar[streetIndex]);
+                clickStreetList.splice(streetIndex, 1);
+                clickStreetLayar.splice(streetIndex, 1);
+            }
+
+
+        }).on("dblclick", function(d) {
+            if (MyTB == "td") {
+                draw3dmap(d.Id, this);
+                if (Street_Layer != -1) {
+                    map.removeLayer(Street_Layer);
+                }
+                if (Region_Layer != -1) {
+                    map.removeLayer(Region_Layer);
+                }
+                if (Poly_Layer != -1) {
+                    map.removeLayer(Poly_Layer);
+                }
+                tooltip.style("width", 0)
+                    .style("height", 0)
+                    .style("opacity", 0.0);
+            }
+        })
+
+    lasso.items(d3.selectAll(".dot"));
+    var legenddata = getlegenddata();
+  
+    var z = d3.scale.ordinal().range(["red", "green", "blue"]);
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var legend = g.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 15)
+        .attr("text-anchor", "end")
+        .selectAll("g")
+        .data(legenddata.slice())
+        .enter().append("g")
+        .attr("transform", function(d, i) {
+            return "translate(" + i * 150 + "," + 0 + ")";
+        })
+
+    legend.append("rect")
+        .attr("x", 45)
+        .attr("y", height + 30)
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("fill", z);
+
+    legend.append("text")
+        .attr("x", 40)
+        .attr("y", height + 35)
+        .style("font-size", "smaller")
+        .attr("dy", "0.32em").text(function(d) {
+            return d;
+        }).style("cursor", "default");
+
+    var legend2data = ["clear"]
+    var legend2 = g.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 15)
+        .attr("text-anchor", "end")
+        .selectAll("g")
+        .data(legend2data)
+        .enter().append("g")
+        .attr("transform", function(d, i) {
+            return "translate(0," + i * 20 + ")";
+        });
+
+    legend2.append("rect")
+        .attr("x", width - 90)
+        .attr("y", -10)
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("fill", color);
+
+    legend2.append("text")
+        .attr("id", "cleartext")
+        .attr("x", width - 50)
+        .attr("y", -5)
+        .style("font-size", "smaller")
+        .attr("dy", "0.32em").text(function(d) {
+            return d;
+        }).style("cursor", "pointer").on("click", function() {
+            clearscp();
+        });
+
+
+}
+
+function getlegenddata()
+{
+	if (colorBy === "MinSpeed" || colorBy === "AvgSpeed" || colorBy === "MaxSpeed") {
+       return [colorBy + " < " + 30, 30 + " <= " + colorBy + " < " + 60, colorBy + " >= " + 60];
+    } else if (colorBy === "Flow") {
+        return [colorBy + " < " + 50, 50 + " <= " + colorBy + " < " + 100, colorBy + " >= " + 100];
+    }
+	else if (colorBy === "StartHour" || colorBy === "EndHour") {
+        return [colorBy + " < " + 8, 8 + " <= " + colorBy + " < " + 16, colorBy + " >= " + 16];
+    }
+	else if (colorBy === "StartDay") {
+        return [colorBy + " < " + 3, 3 + " <= " + colorBy + " < " + 5, colorBy + " >= " + 5];
+    }
+	else if (colorBy === "Length_km") {
+        return [colorBy + " < " + 5, 5 + " <= " + colorBy + " < " + 10, colorBy + " >= " + 10];
+    }
+}
+function tabSCPChanged(value) {
+    if (value.id === "tableView") {
+        document.getElementById("exTab3").style.display = "block";
+        document.getElementById("scatterdiv").style.display = "none";
+    } else {
+        document.getElementById("exTab3").style.display = "none";
+        document.getElementById("scatterdiv").style.display = "block";
+    }
+
+}
+
+function getColorSCP(streetdata) {
+    if (colorBy === "MinSpeed" || colorBy === "AvgSpeed" || colorBy === "MaxSpeed") {
+        if (streetdata < 30)
+            return "red";
+        else if (streetdata < 60)
+            return "green";
+        else
+            return "blue";
+    } else if (colorBy === "Flow") {
+        if (streetdata < 50)
+            return "red";
+        else if (streetdata < 100)
+            return "green";
+        else
+            return "blue";
+    } else if (colorBy === "StartHour") {
+        if (streetdata < 8)
+            return "red";
+        else if (streetdata < 16)
+            return "green";
+        else
+            return "blue";
+    } else if (colorBy === "StartDay") {
+        if (streetdata < 3)
+            return "red";
+        else if (streetdata < 5)
+            return "green";
+        else
+            return "blue";
+    } else if (colorBy === "EndHour") {
+        if (streetdata < 8)
+            return "red";
+        else if (streetdata < 16)
+            return "green";
+        else
+            return "blue";
+    } else if (colorBy === "Length_km") {
+        if (streetdata < 5)
+            return "red";
+        else if (streetdata < 10)
+            return "green";
+        else
+            return "blue";
+    }
+
+
+}
+var lassoSelectedStreeLayer = [];
+
+///draw all trip of lasso selection
+
+function HighlightStreetForLassoSelect(ST_Names) {
+    lassoSelectedStreeLayer = [];
+    lassoselectedList = "( ";
+    if (MyTB === "tds") {
+        ST_Names.forEach(function(id) {
+            lassoselectedList = lassoselectedList + id + ",";
+            var polylinePoints = [];
+            if (RID[id]) {
+                var Traj = RID[id].split(',');
+                var polylinePoints = [];
+                for (var i = 0; i < Traj.length; i++) {
+                    T = Traj[i].split(' ');
+                    polylinePoints.push([T[1], T[0]]);
+                }
+            }
+            Street_LayerForLasso = new L.polyline(polylinePoints, { // polyline options (Play with it as you like)
+                color: "#00CC00", // polyline color
+                weight: 10, // polyline weight
+                opacity: 0.6, // polyline opacity
+                smoothFactor: 1.0 // polyline smoothFactor
+            });
+
+
+            map.addLayer(Street_LayerForLasso); // Add to map
+
+            lassoSelectedStreeLayer.push(Street_LayerForLasso);
+        });
+    } else if (MyTB === "tdr") {
+        ST_Names.forEach(function(id) {
+            lassoselectedList = lassoselectedList + id + ",";
+           var Region_LayerForLasso = new L.polygon([points[id]], {
+                color: "#00CC00",
+                opacity: 0.6,
+                weight: 3
+            });
+
+            map.addLayer(Region_LayerForLasso); // Add to map
+
+            lassoSelectedStreeLayer.push(Region_LayerForLasso);
+        })
+    } else if (MyTB == "td") {
+        ST_Names.forEach(function(id) {
+            lassoselectedList = lassoselectedList + id + ",";
+            ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace("LINESTRING(", "")
+            ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace(")", "")
+            var Traj = ActiveQID.Results[id]["trajectorypoints"].split(',');
+            var polylinePoints = [];
+            for (var i = 0; i < Traj.length; i++) {
+                T = Traj[i].split(' ');
+                polylinePoints.push([T[1], T[0]]);
+            }
+            var Poly_Layer2 = new L.polyline(polylinePoints, { // polyline options (Play with it as you like)
+                color: "#00CC00", // polyline color
+                weight: 10, // polyline weight
+                opacity: 0.6, // polyline opacity
+                smoothFactor: 1.0 // polyline smoothFactor
+            })
+
+            map.addLayer(Poly_Layer2); // Add to map
+            lassoSelectedStreeLayer.push(Poly_Layer2);
+        })
+    }
+}
+
+var clickStreetList = [];
+var clickStreetLayar = [];
+
+/// draw trip for lasso cilck 
+
+function HighlightStreetForSCPClick(id) {
+
+    if (MyTB === "tds") {
+        var polylinePoints = [];
+        if (RID[id]) {
+            var Traj = RID[id].split(',');
+            var polylinePoints = [];
+            for (var i = 0; i < Traj.length; i++) {
+                T = Traj[i].split(' ');
+                polylinePoints.push([T[1], T[0]]);
+            }
+        }
+        Street_LayerForLasso = new L.polyline(polylinePoints, { // polyline options (Play with it as you like)
+            color: "#F0FC4C", // polyline color
+            weight: 10, // polyline weight
+            opacity: 0.8, // polyline opacity
+            smoothFactor: 1.0 // polyline smoothFactor
+        });
+
+
+        map.addLayer(Street_LayerForLasso); // Add to map
+        clickStreetList.push(id);
+        clickStreetLayar.push(Street_LayerForLasso);
+    } else if (MyTB === "tdr") {
+
+       var Region_LayerForLasso = new L.polygon([points[id]], {
+            color: "#F0FC4C",
+            opacity: 0.8,
+            weight: 3
+        });
+
+        map.addLayer(Region_LayerForLasso); // Add to map
+        clickStreetList.push(id);
+        clickStreetLayar.push(Street_LayerForLasso);
+    } else if (MyTB === "td") {
+        ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace("LINESTRING(", "")
+        ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace(")", "")
+        var Traj = ActiveQID.Results[id]["trajectorypoints"].split(',');
+        var polylinePoints = [];
+        for (var i = 0; i < Traj.length; i++) {
+            T = Traj[i].split(' ');
+            polylinePoints.push([T[1], T[0]]);
+        }
+        var Poly_Layer2 = new L.polyline(polylinePoints, { // polyline options (Play with it as you like)
+            color: "#F0FC4C", // polyline color
+            weight: 10, // polyline weight
+            opacity: 0.8, // polyline opacity
+            smoothFactor: 1.0 // polyline smoothFactor
+        })
+
+        map.addLayer(Poly_Layer2); // Add to map
+        clickStreetList.push(id);
+        clickStreetLayar.push(Poly_Layer2);
+
+    }
+}
+
+
+function clearLassoSelectedStreeLayel() {
+    if (lassoSelectedStreeLayer.length != 0) {
+        lassoSelectedStreeLayer.forEach(function(selectedLayer) {
+            map.removeLayer(selectedLayer);
+        });
+
+    }
+}
+
+function clearLassoSelectedClickLayel() {
+    if (clickStreetLayar.length != 0) {
+        clickStreetLayar.forEach(function(selectedLayer) {
+            map.removeLayer(selectedLayer);
+        });
+
+    }
+}
+
+hideoptionForSCP();
+//// give right option to right time 
+
+function hideoptionForSCP() {
+    if (MyTB == "td") {
+        d3.selectAll(".optionForSCPTDS").style("display", "none");
+        d3.selectAll(".optionForSCPTD").style("display", "block");
+    } else {
+        d3.selectAll(".optionForSCPTDS").style("display", "block");
+        d3.selectAll(".optionForSCPTD").style("display", "none");
+    }
+
+}
+
+/// get trip data of lasso selected trip
+
+function DrawTripFormLassoselected() {
+    if (lassoselectedList != "null" && lassoselectedList != "") {
+        isLAssoselectedzoom = true;
+        var paraForSCP = stcor;
+        lassoselectedList = lassoselectedList.slice(0, -1);
+        lassoselectedList = lassoselectedList + " )";
+        paraForSCP = paraForSCP + "!" + lassoselectedList + "!" + "1";
+        if (MyTB == "td") {
+            //AvtiveVis = 5;
+            $.post("/TrajVis/system/Nquery.php", {
+                cor: paraForSCP,
+                DB: MyDB
+            }, function(results) {
+                // the output of the response is now handled via a variable call 'results'
+                if (results) {
+                    var obj1 = [];
+                    obj1 = JSON.parse(results);
+                    lassoselectedList = "";
+
+                    ActiveQID.Results = obj1["Draw"];
+                    ActiveQID.DayHours = obj1["DayHours"];
+                    ActiveQID.road_Array = obj1["region_Array"];
+                    ActiveQID.Trip_Rank = obj1["Trip_Rank"];
+                    ActiveQID.St_Rank_count = obj1["St_Rank_count"];
+                    ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                    ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
+                    ActiveQID.WeekDays = obj1["WeekDays"];
+                    $("#bottom1 svg").empty();
+                    $("#top1 svg").empty();
+                    var Ytitle = "Count"
+                    var xtitle1 = "DayHours"
+                    var xtitle2 = "WeekDays"
+                    var svg1 = '#top1 svg'
+                    var svg2 = '#bottom1 svg'
+                    var BarChartData1 = []
+                    var BarChartData2 = []
+
+
+                    var temp1 = ActiveQID.DayHours
+                    var temp2 = ActiveQID.WeekDays
+
+                    //var Timelabels = ["12am","1am","2am","3am","4am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
+                    var Timelabels1 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
+                    var Timelabels2 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+                    var DdataB1 = []
+                    var DdataB2 = []
+
+                    for (var i = 0; i < 24; i++) {
+                        if (i in temp1) {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: parseInt(temp1[i]['total']),
+
+                            });
+                        } else {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    for (var i = 0; i < 7; i++) {
+                        if (i in temp2) {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: parseInt(temp2[i]['total']),
+
+                            });
+                        } else {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    var FDataB1 = {
+                        values: DdataB1,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+                    BarChartData1.push(FDataB1)
+                    var FDataB2 = {
+                        values: DdataB2,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+
+                    BarChartData2.push(FDataB2)
+
+                    ChDataB_Main = BarChartData2
+                    DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1)
+                    DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2)
+                    tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                    getDataForSCP(ActiveQID.data_For_SCP);
+                    drawSCP();
+                    clearMap();
+                    if (AvtiveVis == 3) {
+                        DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 4) {
+                        DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 5) {
+                        DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+                    }
+                } else {
+                    console.log("No Results");
+                }
+            });
+        } else if (MyTB == "tds") {
+            //AvtiveVis = 2;
+            $.post("/TrajVis/system/query.php", {
+                cor: paraForSCP,
+                DB: MyDB
+            }, function(results) {
+                // the output of the response is now handled via a variable call 'results'
+                if (results) {
+
+                    var obj1 = [];
+                    obj1 = JSON.parse(results);
+                    lassoselectedList = "";
+                    ActiveQID.Results = obj1["Draw"];
+                    ActiveQID.DayHours = obj1["DayHours"];
+                    ActiveQID.road_Array = obj1["road_Array"];
+                    ActiveQID.Trip_Rank = obj1["Trip_Rank"];
+                    ActiveQID.St_Rank_count = obj1["St_Rank_count"];
+                    ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                    ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
+                    ActiveQID.WeekDays = obj1["WeekDays"];
+                    $("#bottom1 svg").empty();
+                    $("#top1 svg").empty();
+                    var Ytitle = "Count"
+                    var xtitle1 = "DayHours"
+                    var xtitle2 = "WeekDays"
+                    var svg1 = '#top1 svg'
+                    var svg2 = '#bottom1 svg'
+                    var BarChartData1 = []
+                    var BarChartData2 = []
+
+
+                    var temp1 = ActiveQID.DayHours
+                    var temp2 = ActiveQID.WeekDays
+
+                    //var Timelabels = ["12am","1am","2am","3am","4am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
+                    var Timelabels1 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
+                    var Timelabels2 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+                    var DdataB1 = []
+                    var DdataB2 = []
+
+                    for (var i = 0; i < 24; i++) {
+                        if (i in temp1) {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: parseInt(temp1[i]['total']),
+
+                            });
+                        } else {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    for (var i = 0; i < 7; i++) {
+                        if (i in temp2) {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: parseInt(temp2[i]['total']),
+
+                            });
+                        } else {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    var FDataB1 = {
+                        values: DdataB1,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+                    BarChartData1.push(FDataB1)
+                    var FDataB2 = {
+                        values: DdataB2,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+
+                    BarChartData2.push(FDataB2)
+
+                    ChDataB_Main = BarChartData2
+                    DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1)
+                    DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2)
+                    tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                    getDataForSCP(ActiveQID.data_For_SCP);
+                    drawSCP();
+                    clearMap();
+                    if (AvtiveVis == 1) {
+                        DrawStreet(ActiveQID.road_Array);
+                    } else if (AvtiveVis == 2) {
+                        DrawStreet1(ActiveQID.road_Array, ActiveQID.Color);
+                    } else if (AvtiveVis == 3) {
+                        DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 4) {
+                        DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 5) {
+                        DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+                    }
+
+                } else {
+                    console.log("No Results");
+                }
+            });
+
+        } else if (MyTB == "tdr") {
+
+            $.post("/TrajVis/system/Rquery.php", {
+                cor: paraForSCP,
+                DB: MyDB
+            }, function(results) {
+                // the output of the response is now handled via a variable call 'results'
+                if (results) {
+
+                    var obj1 = [];
+                    obj1 = JSON.parse(results);
+                    lassoselectedList = "";
+                    ActiveQID.Results = obj1["Draw"];
+                    ActiveQID.DayHours = obj1["DayHours"];
+                    ActiveQID.road_Array = obj1["region_Array"];
+                    ActiveQID.Trip_Rank = obj1["Trip_Rank"];
+                    ActiveQID.St_Rank_count = obj1["St_Rank_count"];
+                    ActiveQID.St_Rank_speed = obj1["St_Rank_speed"];
+                    ActiveQID.data_For_SCP = obj1["Data_For_SCP"];
+                    ActiveQID.WeekDays = obj1["WeekDays"];
+                    $("#bottom1 svg").empty();
+                    $("#top1 svg").empty();
+                    var Ytitle = "Count"
+                    var xtitle1 = "DayHours"
+                    var xtitle2 = "WeekDays"
+                    var svg1 = '#top1 svg'
+                    var svg2 = '#bottom1 svg'
+                    var BarChartData1 = []
+                    var BarChartData2 = []
+
+
+                    var temp1 = ActiveQID.DayHours
+                    var temp2 = ActiveQID.WeekDays
+
+                    //var Timelabels = ["12am","1am","2am","3am","4am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
+                    var Timelabels1 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
+                    var Timelabels2 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+                    var DdataB1 = []
+                    var DdataB2 = []
+
+                    for (var i = 0; i < 24; i++) {
+                        if (i in temp1) {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: parseInt(temp1[i]['total']),
+
+                            });
+                        } else {
+                            DdataB1.push({
+                                x: Timelabels1[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    for (var i = 0; i < 7; i++) {
+                        if (i in temp2) {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: parseInt(temp2[i]['total']),
+
+                            });
+                        } else {
+                            DdataB2.push({
+                                x: Timelabels2[i],
+                                y: 0,
+
+                            });
+                        }
+                    }
+                    var FDataB1 = {
+                        values: DdataB1,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+                    BarChartData1.push(FDataB1)
+                    var FDataB2 = {
+                        values: DdataB2,
+                        key: "Query:" + newQuery.QueryId,
+                        color: color
+                    }
+
+                    BarChartData2.push(FDataB2)
+
+                    ChDataB_Main = BarChartData2
+                    DrawGroupedBarChart(xtitle1, Ytitle, BarChartData1, svg1)
+                    DrawGroupedBarChart(xtitle2, Ytitle, BarChartData2, svg2)
+                    tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+                    getDataForSCP(ActiveQID.data_For_SCP);
+                    drawSCP();
+                    clearMap();
+                    if (AvtiveVis == 1) {
+                        RDrawStreet(ActiveQID.road_Array);
+                    } else if (AvtiveVis == 2) {
+                        RDrawStreet1(ActiveQID.road_Array, ActiveQID.Color);
+                    } else if (AvtiveVis == 3) {
+                        DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 4) {
+                        DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+                    } else if (AvtiveVis == 5) {
+                        DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+                    }
+
+                } else {
+                    console.log("No Results");
+                }
+            });
+
+        }
+    }
+}
+var isLAssoselectedzoom = false;
+
+function clearscp() {
+    clearLassoSelectedStreeLayel();
+    clearLassoSelectedClickLayel();
+    if (isLAssoselectedzoom) {
+        isLAssoselectedzoom = false;
+        DrawChart();
+        ActiveQID = Object.create(TempQO);
+        tabledata(ActiveQID.St_Rank_count, ActiveQID.St_Rank_speed, ActiveQID.Trip_Rank);
+        getDataForSCP(ActiveQID.data_For_SCP);
+        drawSCP();
+        clearMap();
+        if (MyTB === "tds") {
+            if (AvtiveVis == 1) {
+                DrawStreet(ActiveQID.road_Array);
+            } else if (AvtiveVis == 2) {
+                DrawStreet1(ActiveQID.road_Array, ActiveQID.Color);
+            } else if (AvtiveVis == 3) {
+                DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 4) {
+                DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 5) {
+                DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+            }
+        } else if (MyTB === "tdr") {
+            if (AvtiveVis == 1) {
+                RDrawStreet(ActiveQID.road_Array);
+            } else if (AvtiveVis == 2) {
+                RDrawStreet1(ActiveQID.road_Array, ActiveQID.Color);
+            } else if (AvtiveVis == 3) {
+                DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 4) {
+                DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 5) {
+                DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+            }
+        } else if (MyTB === "td") {
+            if (AvtiveVis == 3) {
+                DrawPick(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 4) {
+                DrawDrop(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color, ActiveQID.road_Array);
+            } else if (AvtiveVis == 5) {
+                DrawTraj1(ActiveQID.Results, ActiveQID.QueryId, ActiveQID.color);
+            }
+        }
+
+    }
+}
+
+
+// global veriable for 3d map view //
+var isdblclick;
+var latmin = 90,
+    latmax = -90,
+    longmin = 180,
+    longmax = -180;
+var tripList3d = [];
+var difference = 0;
+var color3d = [];
+var click3dLayar = [];
+
+function draw3dmap(id, circleelement) {
+    isdblclick = true;
+    var polylinePoints = [];
+    $.post("/TrajVis/system/3Dquery.php", {
+        cor: id,
+        DB: MyDB
+    }, function(results) {
+        // the output of the response is now handled via a variable call 'results'
+        if (results) {
+            var obj1 = [];
+            obj1 = JSON.parse(results);
+            var data = obj1["pointlist"].split(',')
+            var starttime = new Date(data[1]);
+            var endtime = new Date(data[data.length - 1]);
+            if (((endtime - starttime) / 1000) > difference) {
+                difference = (endtime - starttime) / 1000;
+            }
+            for (var i = 0; i < data.length; i = i + 2) {
+
+
+                var point = data[i];
+                point = point.replace("POINT(", "");
+                point = point.replace(")", "");
+                var latlong = point.split(" ");
+
+                polylinePoints.push([latlong[0], latlong[1], (new Date(data[i + 1]) - starttime) / 1000]);
+                if (latlong[0] < longmin) {
+                    longmin = latlong[0];
+                }
+                if (latlong[0] > longmax) {
+                    longmax = latlong[0]
+                }
+                if (latlong[1] < latmin) {
+                    latmin = latlong[1];
+                }
+                if (latlong[1] > latmax) {
+                    latmax = latlong[1]
+                }
+
+            }
+
+        }
+
+        $("#myModal").modal();
+        $("#myModal").show();
+        tripList3d.push(polylinePoints);
+        var bbox = [longmin, latmin, longmax, latmax]
+        var bboxPolygon = turf.bboxPolygon(bbox);
+
+        var centroid = turf.center(bboxPolygon);
+
+        var p0 = turf.point([bbox[0], bbox[1]]);
+        var p1 = turf.point([bbox[0], bbox[3]]);
+        var p2 = turf.point([bbox[2], bbox[1]]);
+
+
+        var width = turf.distance(p0, p2, {
+            units: 'miles'
+        }) * 985;
+        var length = turf.distance(p0, p1, {
+            units: 'miles'
+        }) * 985;
+
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoidmlzaGFsMTIxMnYiLCJhIjoiY2p4dzEzZTMzMGFyYzNjbnRoNTlqZ3ZjaSJ9.pX6AUOuYQjhgQB2V0k6ZFw';
+        var map2 = new mapboxgl.Map({
+            container: 'map2',
+            style: 'mapbox://styles/mapbox/light-v9',
+            zoom: 10,
+            center: centroid.geometry.coordinates,
+            pitch: 60
+        });
+
+
+        // parameters to ensure the model is georeferenced correctly on the map
+        var modelOrigin = centroid.geometry.coordinates;
+        var modelAltitude = 0;
+        var modelRotate = [Math.PI / 2, 0, 0];
+        var modelScale = 5.41843220338983e-8;
+
+        // transformation parameters to position, rotate and scale the 3D model onto the map
+        var modelTransform = {
+            translateX: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).x,
+            translateY: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).y,
+            translateZ: mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude).z,
+            rotateX: modelRotate[0],
+            rotateY: modelRotate[1],
+            rotateZ: modelRotate[2],
+            scale: modelScale
+        };
+
+        var THREE = window.THREE;
+
+        // configuration of the custom layer for a 3D model per the CustomLayerInterface
+        var customLayer = {
+            id: '3dcube',
+            type: 'custom',
+            renderingMode: '3d',
+            onAdd: function(map2, gl) {
+                this.camera = new THREE.Camera();
+                this.scene = new THREE.Scene();
+
+
+
+                var myScalex = d3.scale.linear()
+                    .domain([longmin, longmax])
+                    .range([width / 2, -width / 2]);
+
+                var myScalez = d3.scale.linear()
+                    .domain([latmin, latmax])
+                    .range([length / 2, -length / 2]);
+
+                var myScaley = d3.scale.linear()
+                    .domain([0, difference])
+                    .range([0, 750]);
+
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: map2.getCanvas(),
+                    context: gl
+                });
+
+                color3d.push(getRandomColor());
+
+                ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace("LINESTRING(", "")
+                ActiveQID.Results[id]["trajectorypoints"] = ActiveQID.Results[id]["trajectorypoints"].replace(")", "")
+                var Traj = ActiveQID.Results[id]["trajectorypoints"].split(',');
+                var polylinePoints2 = [];
+                for (var i = 0; i < Traj.length; i++) {
+                    T = Traj[i].split(' ');
+                    polylinePoints2.push([T[1], T[0]]);
+                }
+                var Poly_Layer2 = new L.polyline(polylinePoints2, { // polyline options (Play with it as you like)
+                    color: color3d[color3d.length - 1], // polyline color
+                    weight: 10, // polyline weight
+                    opacity: 0.8, // polyline opacity
+                    smoothFactor: 1.0 // polyline smoothFactor
+                })
+
+                map.addLayer(Poly_Layer2); // Add to map
+                click3dLayar.push(Poly_Layer2);
+                //d3.select("#scatter").selectAll("svg").select(".g-main").select("#"+id).attr("r", "100").style("stroke-width","3").style("stroke","#979A9A");
+                d3.select(circleelement).attr("r", 10).style("stroke-width", "6").style("stroke", color3d[color3d.length - 1]);
+var geometry1 = new THREE.BoxGeometry(width,750,length);
+var material1 = new THREE.MeshBasicMaterial({color: 0xfffff, wireframe: true, linewidth: 5});
+var cube1 = new THREE.Mesh(geometry1, material1);
+cube1.position.set(0,750/2,0);
+//var worldAxis = new THREE.AxesHelper(750);
+//worldAxis.position.set(-width/2,-750/2,-length/2)
+  //cube1.add(worldAxis);
+this.scene.add(cube1); 
+
+            
+			   for (k = 0; k < tripList3d.length; k++) {
+
+                    var material = new THREE.LineBasicMaterial({
+                        linewidth: 100,
+                        color: color3d[k]
+                    });
+                    var geometry = new THREE.Geometry();
+
+                    tripList3d[k].forEach(function(points) {
+
+                        geometry.vertices.push(new THREE.Vector3(myScalex(points[0]), myScaley(points[2]), myScalez(points[1])));
+                    });
+
+                    var line = new THREE.Line(geometry, material);
+                    this.scene.add(line);
+
+
+                }
+
+                // use the Mapbox GL JS map canvas for three.js
+
+
+                this.renderer.autoClear = false;
+            },
+            render: function(gl, matrix) {
+                var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), modelTransform.rotateX);
+                var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), modelTransform.rotateY);
+                var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), modelTransform.rotateZ);
+
+                var m = new THREE.Matrix4().fromArray(matrix);
+                var l = new THREE.Matrix4().makeTranslation(modelTransform.translateX, modelTransform.translateY, modelTransform.translateZ)
+                    .scale(new THREE.Vector3(modelTransform.scale, -modelTransform.scale, modelTransform.scale))
+                    .multiply(rotationX)
+                    .multiply(rotationY)
+                    .multiply(rotationZ);
+
+                this.camera.projectionMatrix.elements = matrix;
+                this.camera.projectionMatrix = m.multiply(l);
+                this.renderer.state.reset();
+                this.renderer.render(this.scene, this.camera);
+                map2.triggerRepaint();
+            }
+
+        }
+
+        map2.on("style.load", function() {
+            map2.addLayer(customLayer);
+
+            var bounds = polylinePoints.reduce(function(bounds, coord) {
+                return bounds.extend(coord);
+            }, new mapboxgl.LngLatBounds(polylinePoints[0], polylinePoints[0]));
+
+            map2.fitBounds(bounds, {
+                padding: 50
+            });
+
+        });
+
+    });
+};
+
+$('#myModal').on('hidden.bs.modal', function() {
+    //d3.select("#myModal").remove();
+	//map2.removeLayer('3dcube');
+    //map2.remove();
+    map2 = null;
+    isdblclick = false;
+    resetallverialFor3d();
+})
+
+function resetallverialFor3d()
+{
+	
+    latmin = 90;
+    latmax = -90;
+    longmin = 180;
+    longmax = -180;
+    tripList3d = [];
+    difference = 0;
+    d3.select("#scatter").selectAll(".dot").attr("r", 6).style("stroke-width", 1).style("stroke", "black")
+  if (click3dLayar.length != 0) {
+        click3dLayar.forEach(function(selectedLayer) {
+            map.removeLayer(selectedLayer);
+        });
+
+    }
+    color3d = [];
+	
+}
+
+function addAnotherTrip() {
+    $("#myModal").hide();
+    $('.modal-backdrop').remove();
+
+    isdblclick = false;
+
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+
+}
+
 //*****************************************************************************************************************************************
 //// change report view
 //*****************************************************************************************************************************************
 $('#DayHours_btn').click(function() {
-        $("#bottom1").hide();
-        $("#Years_reportView").hide();
-        $("#Months_reportView").hide();
-        $("#top1").show();
+    $("#bottom1").hide();
+    $("#Years_reportView").hide();
+    $("#Months_reportView").hide();
+    $("#top1").show();
+    window.dispatchEvent(new Event('resize'));
 });
 $('#WeekDays_btn').click(function() {
     $("#Years_reportView").hide();
     $("#Months_reportView").hide();
     $("#top1").hide();
     $("#bottom1").show();
+    window.dispatchEvent(new Event('resize'));
 });
 $('#Months_btn').click(function() {
     $("#Years_reportView").hide();
     $("#top1").hide();
     $("#bottom1").hide();
     $("#Months_reportView").show();
+    window.dispatchEvent(new Event('resize'));
 });
 $('#Years_btn').click(function() {
     $("#top1").hide();
     $("#bottom1").hide();
     $("#Months_reportView").hide();
     $("#Years_reportView").show();
+    window.dispatchEvent(new Event('resize'));
 });
